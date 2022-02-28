@@ -26,10 +26,10 @@ The manual consists of the following chapters:
 - Chapter 3: Bluetooth® LE Basic Peripheral - How to create a basic Bluetooth® peripheral using the ModusToolbox™ ecosystem
 - Chapter 4: Notify and Indicate - How to implement notifications and indications in a peripheral
 - Chapter 5: Pairing, Bonding & Privacy - How to implement various types of security in Bluetooth®
-- Chapter 6: Low Power - How to reduce system power consumption in a Bluetooth® design
-- Chapter 7: Over the Air Update (OTA) - How to update firmware over a Bluetooth® link
-- Chapter 8: Beacons - How to implement different types of Bluetooth® beacons
-- Chapter 9: BLE Centrals - How to implement a BLE central device
+- Chapter 6: BLE Centrals - How to implement a BLE central device
+- Chapter 7: Beacons - How to implement different types of Bluetooth® beacons
+- Chapter 8: Low Power - How to reduce system power consumption in a Bluetooth® design
+- Chapter 9: Over the Air Update (OTA) - How to update firmware over a Bluetooth® link
 - Chapter 10: Debugging - Debugging techniques and tools for Bluetooth® devices
 
 ## Hardware
