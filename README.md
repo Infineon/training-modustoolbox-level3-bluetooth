@@ -1,47 +1,11 @@
-# ModusToolbox™ Software Training Level3 Bluetooth®
+# ModusToolbox™ Software Training Level3 Bluetooth® Type1 and Type2
 
-This is a class to teach how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a PSoC™ 6 MCU as a host to a 43012 device.
+This is a pair of classes to teach how to use Bluetooth® Low Energy in ModusToolbox™ applications. The Type1 class applies to MCUs that support the mtb-hal-cat* hardware abstraction library (such as PSoC™ 6 + CYW43012). The Type2 class applies to MCUs that support the AIROC™ Bluetooth® SDK (such as CYW20820). While the interaction with the MCU is different, the basic Bluetooth® operation is the same in both classes, so you can choose whichever one best suits your needs.
 
-After completing this class, you should be able to create and debug full Bluetooth® applications using the ModusToolbox™ ecosystem including peripherals, centrals, and beacons.
+After completing either of these classes, you should be able to create and debug full Bluetooth® applications using the ModusToolbox™ ecosystem including peripherals, centrals, and beacons.
 
-This class does **not** cover Bluetooth SOC applications using PSoC 63 BLE devices.
+*Note: The Type2 class also includes 2 chapters on Bluetooth® classic covering the protocol and the wireless serial port profile (SPP).*
 
-## Pre-requisites
+For details on the Type1 and Type2 class pre-requisites, organization, chapters, and hardware, see the README.md file in the respective class directory.
 
-- ModusToolbox™ Software Training Level 1 Getting Started
-- ModusToolbox™ Software Training Level 2 PSoC™ MCUs
-
-## Organization
-
-- *Manual*:    This directory contains the manual chapters.
-- *Projects*:  This directory contains solutions to exercises.
-- *Templates*: This directory contains template starter projects for some exercises.
-
-## Manual Chapters
-
-The manual consists of the following chapters:
-
-- Chapter 1: Introduction - Overall introduction to the class
-- Chapter 2: Bluetooth® Protocol - General description of Bluetooth® terms and protocol
-- Chapter 3: Bluetooth® LE Basic Peripheral - How to create a basic Bluetooth® peripheral using the ModusToolbox™ ecosystem
-- Chapter 4: Notify and Indicate - How to implement notifications and indications in a peripheral
-- Chapter 5: Pairing, Bonding & Privacy - How to implement various types of security in Bluetooth®
-- Chapter 6: BLE Centrals - How to implement a BLE central device
-- Chapter 7: Beacons - How to implement different types of Bluetooth® beacons
-- Chapter 8: Low Power - How to reduce system power consumption in a Bluetooth® design
-- Chapter 9: Over the Air Update (OTA) - How to update firmware over a Bluetooth® link
-- Chapter 10: Debugging - Debugging techniques and tools for Bluetooth® devices
-
-## Hardware
-
-The following hardware is used for the exercises in this class:
-
-- CY8CKIT-062S2-43012 (PSoC™ 62S2 Wi-Fi BT Pioneer Kit)
-- CY5677 (CySmart Bluetooth® Low Energy 4.2 USB Dongle) (optional)
-- Ammeter (for low power chapter exercises)
-
-## References
-
-Additional information can be found at:
-- https://www.cypress.com/products/modustoolbox
-- https://www.bluetooth.com
+**Note: The Type2 class has not been released yet.**
