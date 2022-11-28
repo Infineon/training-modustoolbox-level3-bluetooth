@@ -305,7 +305,8 @@
             <Property id="DeviceName" value="key_numeric"/>
             <Property id="Appearance" value="0"/>
             <Property id="HostTxPowerLevel" value="Pos_0"/>
-            <Property id="EnableRpaTimeout" value="false"/>
+            <Property id="EnableRpaTimeout" value="true"/>
+        <Property id="RpaTimeout" value="900"/>
             <Property id="WhiteListSize" value="0"/>
         </General>
         <PeripheralConfigurations>

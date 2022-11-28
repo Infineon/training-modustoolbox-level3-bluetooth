@@ -41,6 +41,7 @@
 /* FreeRTOS */
 #include <FreeRTOS.h>
 #include <task.h>
+#include "cyabs_rtos.h"
 
 /* btstack */
 #include "wiced_bt_stack.h"
@@ -55,10 +56,11 @@
 
 /* OTA related header files */
 #include "cy_ota_api.h"
+#include "ota.h"
 
 /* External flash API - used for secondary image storage */
-#ifdef CY_BOOT_USE_EXTERNAL_FLASH /* Set in ota.mk */
-#include "cy_smif_psoc6.h"
+#ifdef OTA_USE_EXTERNAL_FLASH
+#include "ota_serial_flash.h"
 #endif
 
 /*******************************************************************
@@ -72,8 +74,8 @@
 #define LED_OFF_DUTY (100)
 #define LED_BLINK_DUTY (50)
 
-/* Determine if reboot is initiated after OTA competes */
-#define REBOOT_AFTER_OTA (1)
+//GJL /* Determine if reboot is initiated after OTA competes */
+// #define REBOOT_AFTER_OTA (1)
 
 /* Typdef for function used to free allocated buffer to stack */
 typedef void (*pfn_free_buffer_t)(uint8_t *);
@@ -116,8 +118,6 @@ volatile int uxTopUsedPriority;
 
 cyhal_pwm_t status_pwm_obj;
 
-uint16_t connection_id = 0;
-
 /* Global variable for notify task handle */
 TaskHandle_t NotifyTaskHandle = NULL;
 
@@ -127,12 +127,6 @@ cyhal_gpio_callback_data_t app_button_isr_data =
     .callback     = app_button_isr,
     .callback_arg = NULL
 };
-
-/* Variables for OTA */
-cy_ota_context_ptr ota_context;			/* Context used by the OTA agent */
-cy_ota_network_params_t ota_network_params = {CY_OTA_CONNECTION_UNKNOWN};
-cy_ota_agent_params_t ota_agent_params = {0};
-uint16_t bt_ota_config_descriptor = 0;	/* Remember if OTA is using notify or indicate */
 
 /*******************************************************************
  * Function Implementations
@@ -155,6 +149,9 @@ int main(void)
 
     /* Enable global interrupts */
     __enable_irq();
+
+    /* Set default values for OTA configuration */
+    app_bt_initialize_default_values();
 
     /* Clear watchdog so the bootloader doesn't reboot on us */
     cyhal_wdt_init(&wdt_obj, cyhal_wdt_get_max_timeout_ms());
@@ -179,12 +176,31 @@ int main(void)
     cyhal_gpio_enable_event(CYBSP_USER_BTN, CYHAL_GPIO_IRQ_FALL,
                             GPIO_INTERRUPT_PRIORITY, true);
 
-    /* default for all logging to DEBUG */
-    cy_log_init(CY_LOG_DEBUG, NULL, NULL);
+    /* default for all logging to WARNING */
+    cy_log_init(CY_LOG_WARNING, NULL, NULL);
+
+     /* default for OTA logging to INFO */
+    cy_ota_set_log_level(CY_LOG_INFO);
 
     printf("**********Application Start*****************\n");
     printf("**********Version: %d.%d.%d********************\n", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_BUILD);
     printf("********************************************\n");
+
+	/*Initialize QuadSPI if using external flash*/
+	#if defined(OTA_USE_EXTERNAL_FLASH)
+		/* We need to init from every ext flash write
+		 * See ota_serial_flash.h
+		 */
+		if (CY_RSLT_SUCCESS != ota_smif_initialize())
+		{
+			cy_log_msg(CYLF_OTA, CY_LOG_ERR,"QSPI initialization FAILED!!\r\n");
+			CY_ASSERT(0 == 1);
+		}
+		else
+		{
+			cy_log_msg(CYLF_OTA, CY_LOG_ERR, "successfully Initialized QSPI \r\n");
+		}
+	#endif /* OTA_USE_EXTERNAL_FLASH */
 
     /* Configure platform specific settings for the BT device */
     cybt_platform_config_init(&cybsp_bt_platform_cfg);
@@ -232,11 +248,6 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 				wiced_bt_dev_read_local_addr( bda );
 				printf( "Local Bluetooth Device Address: ");
 				print_bd_address(bda);
-
-			    /*Initialize QuadSPI if using external flash*/
-				#ifdef CY_BOOT_USE_EXTERNAL_FLASH
-					psoc6_qspi_init();
-				#endif
 
 				/* Register GATT callback and initialize database*/
 				wiced_bt_gatt_register( app_bt_gatt_event_callback );
@@ -298,7 +309,7 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 				// Read keys from NVRAM
             /* This should return WICED_BT_SUCCESS if not using privacy. If RPA is enabled but keys are not
                stored in EEPROM, this must return WICED_BT_ERROR so that the stack will generate new privacy keys */
-			result = WICED_BT_SUCCESS;
+			result = WICED_BT_ERROR;
 			break;
 
 		case BTM_BLE_SCAN_STATE_CHANGED_EVT: 					// Scan State Change
@@ -309,7 +320,7 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
             printf("Advertisement State Change: %s\n", get_bt_advert_mode_name(p_event_data->ble_advert_state_changed));
             if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_OFF ) /* Advertising stopped */
 			{
-            	if(0 == connection_id) /* not connected  - LED off */
+            	if(0 == ota_config.bt_conn_id) /* not connected  - LED off */
 				{
             	    cyhal_pwm_set_duty_cycle(&status_pwm_obj, LED_OFF_DUTY, 2);
 
@@ -409,7 +420,7 @@ static wiced_bt_gatt_status_t app_bt_connect_event_handler(wiced_bt_gatt_connect
 			printf("Connection ID %d\n", p_conn_status->conn_id );
 
 			/* Handle the connection */
-			connection_id = p_conn_status->conn_id;
+			ota_config.bt_conn_id = p_conn_status->conn_id;
         }
         else
         {
@@ -418,7 +429,7 @@ static wiced_bt_gatt_status_t app_bt_connect_event_handler(wiced_bt_gatt_connect
             printf("Connection ID '%d', Reason '%s'\n", p_conn_status->conn_id, get_bt_gatt_disconn_reason_name(p_conn_status->reason) );
 
 			/* Handle the disconnection */
-            connection_id = 0;
+            ota_config.bt_conn_id = 0;
 
 			/* Restart the advertisements */
 			wiced_bt_start_advertisements( BTM_BLE_ADVERT_UNDIRECTED_HIGH, 0, NULL );
@@ -494,22 +505,22 @@ static wiced_bt_gatt_status_t app_bt_server_event_handler(wiced_bt_gatt_event_da
 
 		case GATT_HANDLE_VALUE_CONF: /* Value confirmation */
 			{
-				cy_ota_agent_state_t ota_lib_state;
-				cy_ota_get_state(ota_context, &ota_lib_state);
-				if (ota_lib_state == CY_OTA_STATE_OTA_COMPLETE) /* OTA has completed */
-				{
-					if(REBOOT_AFTER_OTA == 1) /* Reboot after OTA is true */
-					{
-						printf( "OTA done, reboot in 2 seconds\n" );
-						vTaskDelay(2000);
-						NVIC_SystemReset();
-					}
-					else
-					{
-						printf( "OTA complete, auto-reboot disabled\n" );
-						cy_ota_agent_stop(&ota_context); /* Stop OTA agent */
-					}
-				}
+                cy_log_msg(CYLF_OTA, CY_LOG_DEBUG, "  %s() GATTS_REQ_TYPE_CONF\r\n",
+                        __func__);
+                cy_ota_agent_state_t ota_lib_state;
+                cy_ota_get_state(ota_config.ota_context, &ota_lib_state);
+                if ((ota_lib_state == CY_OTA_STATE_OTA_COMPLETE) && /* Check if we completed the download before rebooting */
+                    (ota_config.reboot_at_end != 0))
+                {
+                    cy_log_msg(CYLF_OTA, CY_LOG_NOTICE, "%s()   RESETTING IN 1 SECOND !!!!\r\n",
+                            __func__);
+                    cy_rtos_delay_milliseconds(1000);
+                    NVIC_SystemReset();
+                }
+                else
+                {
+                    cy_ota_agent_stop(&ota_config.ota_context); /* Stop OTA */
+                }
 				status = WICED_BT_GATT_SUCCESS;
 			}
 			break;
@@ -537,80 +548,19 @@ static wiced_bt_gatt_status_t app_bt_server_event_handler(wiced_bt_gatt_event_da
 *******************************************************************************/
 static wiced_bt_gatt_status_t app_bt_write_handler(wiced_bt_gatt_event_data_t *p_data)
 {
-	cy_rslt_t result;
-
 	wiced_bt_gatt_write_req_t *p_write_req = &p_data->attribute_request.data.write_req;;
 
-	wiced_bt_gatt_status_t status = WICED_BT_GATT_INVALID_HANDLE;
+	wiced_bt_gatt_status_t status = WICED_BT_GATT_ERROR;
 
 	/* OTA GATT write handling */
     switch ( p_write_req->handle )
     {
 		 case HDLD_OTA_FW_UPGRADE_SERVICE_OTA_UPGRADE_CONTROL_POINT_CLIENT_CHAR_CONFIG:
-		     cy_log_msg(CYLF_OTA, CY_LOG_DEBUG, "%s() HDLD_OTA_FW_UPGRADE_SERVICE_OTA_UPGRADE_CONTROL_POINT_CLIENT_CHAR_CONFIG\r\n", __func__);
-			 bt_ota_config_descriptor = p_write_req->p_val[0]; /* Save Configuration descriptor (Notify & Indicate flags) */
-			 return WICED_BT_GATT_SUCCESS;
-
 		 case HDLC_OTA_FW_UPGRADE_SERVICE_OTA_UPGRADE_CONTROL_POINT_VALUE:
-		     cy_log_msg(CYLF_OTA, CY_LOG_DEBUG, "%s() HDLC_OTA_FW_UPGRADE_SERVICE_OTA_UPGRADE_CONTROL_POINT_VALUE \r\n", __func__);
-			 switch (p_write_req->p_val[0])
-			 {
-				 case CY_OTA_UPGRADE_COMMAND_PREPARE_DOWNLOAD:
-					 /* Initialize OTA */
-					 memset(&ota_network_params, 0, sizeof(ota_network_params));
-					 memset(&ota_agent_params, 0, sizeof(ota_agent_params));
-
-					 /* Common Network Parameters */
-					 ota_network_params.initial_connection = CY_OTA_CONNECTION_BLE;
-
-					 /* OTA Agent parameters - used for ALL transport types*/
-					 ota_agent_params.validate_after_reboot = 1; /* Validate after reboot */
-
-					 result = cy_ota_agent_start(&ota_network_params, &ota_agent_params, &ota_context);
-					 if (CY_RSLT_SUCCESS != result)
-					 {
-						 printf("cy_ota_agent_start() Failed - result: 0x%lx\r\n", result);
-					 }
-					 else
-					 {
-						 printf("OTA Agent Started \r\n");
-					 }
-
-					 result = cy_ota_ble_download_prepare(ota_context, connection_id, bt_ota_config_descriptor);
-					 if (CY_RSLT_SUCCESS != result)
-					 {
-						 printf("Download preparation Failed - result: 0x%lx\r\n", result);
-						 return WICED_BT_GATT_ERROR;
-					 }
-					 return WICED_BT_GATT_SUCCESS;
-
-				 case CY_OTA_UPGRADE_COMMAND_DOWNLOAD:
-					 /* let OTA lib know what is going on */
-					 result = cy_ota_ble_download(ota_context, p_data, connection_id, bt_ota_config_descriptor);
-					 if (CY_RSLT_SUCCESS != result)
-					 {
-						 printf("Download Failed - result: 0x%lx\r\n", result);
-						 return WICED_BT_GATT_ERROR;
-					 }
-					 return WICED_BT_GATT_SUCCESS;
-
-				 case CY_OTA_UPGRADE_COMMAND_VERIFY:
-					 result = cy_ota_ble_download_verify(ota_context, p_data, connection_id);
-					 if (CY_RSLT_SUCCESS != result)
-					 {
-						 printf("Verification and Indication failed: 0x%d\r\n", status);
-						 return WICED_BT_GATT_ERROR;
-					 }
-					 return status;
-
-				 case CY_OTA_UPGRADE_COMMAND_ABORT:
-					 result = cy_ota_ble_download_abort(ota_context);
-					 return WICED_BT_GATT_SUCCESS;
-			 }
-
 		 case HDLC_OTA_FW_UPGRADE_SERVICE_OTA_UPGRADE_DATA_VALUE:
-			 result = cy_ota_ble_download_write(ota_context, p_data);
-			 return (result == CY_RSLT_SUCCESS) ? WICED_BT_GATT_SUCCESS : WICED_BT_GATT_ERROR;
+			 /*Call OTA write handler to handle OTA related writes*/
+             status = app_bt_ota_write_handler(p_data);
+			 return status;
     } /* End of OTA write handling */
 
 	/* Normal GATT write handling */
@@ -924,7 +874,7 @@ static void notify_task(void * arg)
         * the event so we don't want to send a BLE notification. */
         if (ulNotificationValue == 1)
         {
-            if( connection_id ) /* Check if we have an active
+            if( ota_config.bt_conn_id ) /* Check if we have an active
                                    connection */
             {
                 /* Check to see if the client has asked for
@@ -934,7 +884,7 @@ static void notify_task(void * arg)
                  {
                      printf( "Notify button press count: (%d)\n",
                      		app_psoc_button_count[0] );
-                     wiced_bt_gatt_server_send_notification( connection_id,
+                     wiced_bt_gatt_server_send_notification( ota_config.bt_conn_id,
 					HDLC_PSOC_BUTTON_COUNT_VALUE,
 					app_psoc_button_count_len,
 					app_psoc_button_count,

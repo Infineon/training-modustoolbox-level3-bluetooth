@@ -91,7 +91,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 {
     wiced_result_t status = WICED_BT_SUCCESS;
 
-    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\n", event, get_bt_event_name(event));
+    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\r\n", event, get_bt_event_name(event));
 
     switch( event )
     {

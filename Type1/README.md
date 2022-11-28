@@ -50,5 +50,4 @@ The manual consists of the following chapters:
 The following hardware is used for the exercises in this class:
 
 - CY8CKIT-062S2-43012 (PSoC™ 62S2 Wi-Fi/Bluetooth Pioneer Kit)
-- CY5677 (CySmart Bluetooth® Low Energy 4.2 USB Dongle) (optional)
 - Ammeter (for low power chapter exercises)

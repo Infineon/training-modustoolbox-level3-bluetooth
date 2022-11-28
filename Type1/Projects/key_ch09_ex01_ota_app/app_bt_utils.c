@@ -8,7 +8,7 @@
 * Related Document: See Readme.md
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2022, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -49,39 +49,38 @@
 /****************************************************************************
  *                              FUNCTION DEFINITIONS
  ***************************************************************************/
-/**************************************************************************************************
-* Function Name: print_bd_address()
-***************************************************************************************************
-* Summary:
-*   This is the utility function that prints the address of the Bluetooth device
+/**
+* Function Name:
+* print_bd_address
 *
-* Parameters:
-*   wiced_bt_device_address_t bdadr                : Bluetooth address
+* Function Description:
+* @brief  This is the utility function that prints the address of the Bluetooth device
 *
-* Return:
-*  void
+* @param  wiced_bt_device_address_t bdadr                : Bluetooth address
 *
-**************************************************************************************************/
+* @return  void
+*
+*/
 void print_bd_address(wiced_bt_device_address_t bdadr)
 {
     printf("%02X:%02X:%02X:%02X:%02X:%02X\n",bdadr[0],bdadr[1],bdadr[2],bdadr[3],bdadr[4],bdadr[5]);
 }
 
-/*******************************************************************************
-* Function Name: get_bt_event_name
-********************************************************************************
-* Summary:
-* The function converts the wiced_bt_management_evt_t enum value to its
-* corresponding string literal. This will help the programmer to debug easily
-* with log traces without navigating through the source code.
+/**
+* Function Name:
+* get_bt_event_name
 *
-* Parameters:
-*  wiced_bt_management_evt_t event: Bluetooth management event type
+* Function Description:
+* @brief  The function converts the wiced_bt_management_evt_t enum value to its
+*         corresponding string literal. This will help the programmer to debug easily
+*         with log traces without navigating through the source code.
+*
+* @param  wiced_bt_management_evt_t event: Bluetooth management event type
 *
 * Return:
 *  wiced_bt_management_evt_t
 *
-*******************************************************************************/
+**/
 const char *get_bt_event_name(wiced_bt_management_evt_t event)
 {
     switch ( (int)event )
@@ -126,21 +125,20 @@ const char *get_bt_event_name(wiced_bt_management_evt_t event)
     return "UNKNOWN_EVENT";
 }
 
-/*******************************************************************************
-* Function Name: get_bt_advert_mode_name
-********************************************************************************
-* Summary:
-* The function converts the wiced_bt_ble_advert_mode_t enum value to its corresponding
-* string literal. This will help the programmer to debug easily with log traces
-* without navigating through the source code.
+/**
+* Function Name
+* get_bt_advert_mode_name
+**
+* Function Description:
+* @brief  The function converts the wiced_bt_ble_advert_mode_t enum value to its corresponding
+*         string literal. This will help the programmer to debug easily with log traces
+*         without navigating through the source code.
 *
-* Parameters:
-*  wiced_bt_ble_advert_mode_t mode: Bluetooth advertisement mode type
+* @param  wiced_bt_ble_advert_mode_t mode: Bluetooth advertisement mode type
 *
-* Return:
-*  wiced_bt_ble_advert_mode_t
+* @return wiced_bt_ble_advert_mode_t
 *
-*******************************************************************************/
+**/
 const char *get_bt_advert_mode_name(wiced_bt_ble_advert_mode_t mode)
 {
     switch ( (int)mode )
@@ -159,21 +157,20 @@ const char *get_bt_advert_mode_name(wiced_bt_ble_advert_mode_t mode)
     return "UNKNOWN_MODE";
 }
 
-/*******************************************************************************
-* Function Name: get_bt_gatt_disconn_reason_name
-********************************************************************************
-* Summary:
-* The function converts the wiced_bt_gatt_disconn_reason_t enum value to its corresponding
-* string literal. This will help the programmer to debug easily with log traces
-* without navigating through the source code.
+/**
+* Function Name
+* get_bt_gatt_disconn_reason_name
 *
-* Parameters:
-*  wiced_bt_gatt_disconn_reason_t reason: GATT Disconnection reason
+* Function Description:
+* @brief    The function converts the wiced_bt_gatt_disconn_reason_t enum value to its
+*           corresponding string literal. This will help the programmer to debug easily with
+*           log traces without navigating through the source code.
 *
-* Return:
-*  wiced_bt_gatt_disconn_reason_t
+* @param  wiced_bt_gatt_disconn_reason_t reason: GATT Disconnection reason
 *
-*******************************************************************************/
+* @return wiced_bt_gatt_disconn_reason_t
+*
+**/
 const char *get_bt_gatt_disconn_reason_name(wiced_bt_gatt_disconn_reason_t reason)
 {
     switch ( (int)reason )
@@ -191,21 +188,20 @@ const char *get_bt_gatt_disconn_reason_name(wiced_bt_gatt_disconn_reason_t reaso
     return "UNKNOWN_REASON";
 }
 
-/*******************************************************************************
-* Function Name: get_bt_gatt_status_name
-********************************************************************************
-* Summary:
-* The function converts the wiced_bt_gatt_status_t enum value to its corresponding
-* string literal. This will help the programmer to debug easily with log traces
-* without navigating through the source code.
+/*
+* Function Name
+* get_bt_gatt_status_name
 *
-* Parameters:
-*  wiced_bt_gatt_status_t status: GATT status
+* Function Description:
+* @brief    The function converts the wiced_bt_gatt_status_t enum value to its corresponding
+*           string literal. This will help the programmer to debug easily with log traces
+*           without navigating through the source code.
 *
-* Return:
-*  wiced_bt_gatt_status_t
+*  @param  wiced_bt_gatt_status_t status: GATT status
 *
-*******************************************************************************/
+* @return  wiced_bt_gatt_status_t
+*
+*/
 const char *get_bt_gatt_status_name(wiced_bt_gatt_status_t status)
 {
     switch ( (int)status )

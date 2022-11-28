@@ -8,7 +8,7 @@
 * Related Document: See Readme.md
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2022, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related

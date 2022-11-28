@@ -59,7 +59,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 {
     wiced_result_t status = WICED_BT_SUCCESS;
 
-    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\n", event, get_bt_event_name(event));
+    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\r\n", event, get_bt_event_name(event));
 
     switch( event )
     {
@@ -76,7 +76,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 
 				/* Create the packet and begin advertising */
 				app_set_advertisement_data();
-				wiced_bt_start_advertisements( BTM_BLE_ADVERT_UNDIRECTED_HIGH, 0, NULL );
+				wiced_bt_start_advertisements( BTM_BLE_ADVERT_NONCONN_HIGH, 0, NULL );
 			}
 			break;
 

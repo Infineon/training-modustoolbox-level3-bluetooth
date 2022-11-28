@@ -50,5 +50,4 @@ The manual consists of the following chapters:
 The following hardware is used for the exercises in this class:
 
 - CYW920835M2EVB-01 (CYW20835 Bluetooth® Evaluation Kit)
-- CY5677 (CySmart Bluetooth® Low Energy 4.2 USB Dongle) (optional)
 - Ammeter (for low power chapter exercises)

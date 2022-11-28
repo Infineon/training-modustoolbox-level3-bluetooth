@@ -1,13 +1,13 @@
 /*
- * Copyright 2021, Cypress Semiconductor Corporation (an Infineon company)
+ * Copyright 2022, Cypress Semiconductor Corporation (an Infineon company)
  * SPDX-License-Identifier: Apache-2.0
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,16 @@
  */
 
 /**
- * \addtogroup group_cy_ota Cypress Over The Air (OTA) API
+ * Cypress OTA API abstracts underlying network and
+ * platform support for Over The Air updates.
+ */
+ /**
+ * \addtogroup group_cy_ota Infineon Over The Air (OTA) API
  * \{
  * \defgroup group_ota_config OTA User Configurations
  */
 /**
- *
- *  Customer overrides for the OTA library.
+ *  Customer defines for the OTA library
  *
  **********************************************************************/
 
@@ -61,7 +64,7 @@ extern "C" {
 /**
  * @brief Length of time to check for downloads.
  *
- * THE OTA Agent wakes up, connects to server, and waits this much time before disconnecting.
+ * The OTA Agent wakes up, connects to server, and waits this much time before disconnecting.
  * This allows the OTA Agent to be inactive for long periods of time, only checking for short periods.
  * Use 0x00 to continue checking once started.
  */
@@ -87,7 +90,7 @@ extern "C" {
 /**
  * @brief Length of time to check for getting the OTA image data.
  *
- * After getting the Job (or during a direct download), this is the amount of time to wait before
+ * After getting the Job (or during a Direct download), this is the amount of time to wait before
  * canceling the download.
  * Use 0x00 to disable.
  */
@@ -105,14 +108,27 @@ extern "C" {
  *
  * This is used to determine # retries when connecting to the server during an OTA update check.
  */
-#define CY_OTA_CONNECT_RETRIES              (3)             /* 3 server connect retries.  */
+#define CY_OTA_CONNECT_RETRIES              (3)             /* 3 server connect retries  */
 
 /**
- * @brief Number of OTA download retries.
+ * @brief Number of OTA download retries
  *
- * Retry count for attempts at downloading the OTA image.
+ * Retry count for attempts at downloading the OTA Image
  */
-#define CY_OTA_MAX_DOWNLOAD_TRIES           (3)             /* 3 download OTA image retries. */
+#define CY_OTA_MAX_DOWNLOAD_TRIES           (3)             /* 3 download OTA Image retries */
+
+/**
+ * @brief HTTP timeout for sending messages
+ *
+ */
+#define CY_OTA_HTTP_TIMEOUT_SEND            (3000)         /* 3 second send timeout (ms). */
+
+/**
+ * @brief HTTP timeout for receiving messages
+ *
+ */
+#define CY_OTA_HTTP_TIMEOUT_RECEIVE         (3000)         /* 3 second receive timeout. */
+
 
 /**********************************************************************
  * Message Defines
@@ -134,8 +150,12 @@ extern "C" {
  *
  * Topic for the device to send a message to the Publisher:
  *  "COMPANY_TOPIC_PREPEND / BOARD_NAME / PUBLISHER_LISTEN_TOPIC"
+ *  For testing, add [COMPANY_TOPIC_PREPEND=<uniquename>] to make build
+ *  Add [-c <uniquename>] to python publisher.py
  */
-#define COMPANY_TOPIC_PREPEND               "anycloud"
+#ifndef COMPANY_TOPIC_PREPEND
+#define COMPANY_TOPIC_PREPEND               "OTAUpdate"
+#endif
 
 /**
  * @brief End of topic to send a message to the Publisher for Direct download.
@@ -156,20 +176,23 @@ extern "C" {
 */
 #define CY_OTA_RESULT_FAILURE               "Failure"
 
-
 /**
  * @brief Default Job document name.
  *
  * Name of the update JSON file for HTTP.
  */
+#ifndef CY_OTA_HTTP_JOB_FILE
 #define CY_OTA_HTTP_JOB_FILE               "/ota_update.json"
+#endif
 
 /**
  * @brief Default OTA image file name.
  *
  * Name of the OTA image for HTTP.
  */
-#define CY_OTA_HTTP_DATA_FILE              "/anycloud-ota.bin"
+#ifndef CY_OTA_HTTP_DATA_FILE
+#define CY_OTA_HTTP_DATA_FILE              "/ota-update.bin"
+#endif
 
 /**
  * @brief Device message to the Publisher to ask about updates.
@@ -206,7 +229,7 @@ extern "C" {
 \"SerialNumber\": \"ABC213450001\", \
 \"BoardName\": \"CY8CPROTO_062_4343W\", \
 \"Version\": \"%d.%d.%d\", \
-\"UniqueTopicName\": \"%s\" \
+\"UniqueTopicName\": \"%s\"\
 }"
 
 /**
@@ -233,23 +256,6 @@ extern "C" {
 \"Filename\": \"%s\", \
 \"Offset\": \"%ld\", \
 \"Size\": \"%ld\"\
-}"
-
-/**
- * @brief Device message to the Publisher to ask for a download.
- * *
- * Used with sprintf() to insert the current version and UniqueTopicName at runtime.
- * Override if desired by defining in cy_ota_config.h.
- */
-#define CY_OTA_DOWNLOAD_DIRECT_REQUEST \
-"{\
-\"Message\":\"Send Direct Update\", \
-\"Manufacturer\": \"Express Widgits Corporation\", \
-\"ManufacturerID\": \"EWCO\", \
-\"ProductID\": \"Easy Widgit\", \
-\"SerialNumber\": \"ABC213450001\", \
-\"BoardName\": \"CY8CPROTO_062_4343W\", \
-\"Version\": \"%d.%d.%d\" \
 }"
 
 /**

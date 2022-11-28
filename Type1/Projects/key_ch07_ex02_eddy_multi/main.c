@@ -145,6 +145,9 @@ int main(void)
     cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,\
                         CY_RETARGET_IO_BAUDRATE);
 
+    /* Initialize LED Pin */
+    cyhal_gpio_init(CYBSP_USER_LED2,CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+
     printf("**********Application Start*****************\n");
 
     /* Configure platform specific settings for the BT device */
@@ -254,6 +257,8 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
                 if(WICED_SUCCESS == multi_adv_resp_status)
                 {
                     printf("Multi ADV Start Event Status: SUCCESS\n");
+					/* Advetising started, so turn LED on */
+                    cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_ON);
                 }
                 else
                 {
@@ -264,6 +269,11 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
             if(WICED_SUCCESS == multi_adv_resp_status)
             {
                 result = WICED_BT_SUCCESS;
+            }
+			else
+			{
+                /* Fail, so turn LED off */
+                cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_OFF);
             }
 
             break;

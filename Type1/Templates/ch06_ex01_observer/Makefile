@@ -28,6 +28,14 @@
 # Basic Configuration
 ################################################################################
 
+#Type of MTB Makefile Options include:
+#
+#COMBINED    -- Top Level Makefile usually for single standalone application
+#APPLICATION -- Top Level Common Makefile usually for multi-project in application
+#PROJECT     -- Project Makefile for each project under Application
+#
+MTB_TYPE=COMBINED
+
 # Target board/hardware (BSP).
 # To change the target, it is recommended to use the Library manager 
 # ('make modlibs' from command line), which will also update Eclipse IDE launch 
@@ -79,10 +87,10 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS RTOS_AWARE WICED_BLE CUSTOM_DESIGN_MODUS
+COMPONENTS=FREERTOS RTOS_AWARE WICED_BLE 
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS=BSP_DESIGN_MODUS
+DISABLE_COMPONENTS=
 
 # By default the build system automatically looks in the Makefile's directory
 # tree for source code and builds it. The SOURCES variable can be used to
@@ -95,7 +103,7 @@ SOURCES=
 INCLUDES=
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=
+DEFINES=CY_RETARGET_IO_CONVERT_LF_TO_CRLF 
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=

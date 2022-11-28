@@ -186,7 +186,7 @@ const wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
     .max_number_of_buffer_pools         = 4,                                                           /**< Maximum number of buffer pools in p_btm_cfg_buf_pools and by wiced_create_pool */
 
     /* Interval of  random address refreshing */
-    .rpa_refresh_timeout                = WICED_BT_CFG_DEFAULT_RANDOM_ADDRESS_NEVER_CHANGE,          /**< Interval of  random address refreshing - secs */
+    .rpa_refresh_timeout                = WICED_BT_CFG_DEFAULT_RANDOM_ADDRESS_CHANGE_TIMEOUT,          /**< Interval of  random address refreshing - secs */
     /* BLE Filter Accept List size */
     .ble_filter_accept_list_size                = 0,                                                           /**< Maximum number of Filter Accept List devices allowed. Cannot be more than 128 */
 #endif

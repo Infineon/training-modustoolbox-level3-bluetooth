@@ -40,7 +40,8 @@
 #define BONDED  (1)
 
 /* NVRAM locations */
-#define VSID_BONDINFO			(WICED_NVRAM_VSID_START)
+#define VSID_BONDINFO				(WICED_NVRAM_VSID_START)
+#define VSID_LOCAL_IDENTITY_KEYS	(WICED_NVRAM_VSID_START+1)
 
 /*******************************************************************
  * Function Prototypes
@@ -73,6 +74,8 @@ struct bondinfo
 	wiced_bt_device_link_keys_t 	link_keys;
 }  bondinfo;
 
+wiced_bt_local_identity_keys_t 	identity_keys;
+
 /*******************************************************************************
 * Function Name: void application_start( void )
 ********************************************************************************/
@@ -101,7 +104,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 
     wiced_result_t nvram_status;
 
-    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\n", event, get_bt_event_name(event));
+    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\r\n", event, get_bt_event_name(event));
 
     switch( event )
     {
@@ -119,15 +122,16 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 				wiced_hal_read_nvram( VSID_BONDINFO, sizeof(bondinfo), (uint8_t*)&bondinfo, &nvram_status);
 				if( nvram_status == WICED_BT_SUCCESS )
 				{
-					WICED_BT_TRACE("\tBonding info found in NVRAM.\n" );
+					wiced_bt_dev_add_device_to_address_resolution_db ( &bondinfo.link_keys );
+					WICED_BT_TRACE("\tBonding info found in NVRAM. Link key added to address resolution database\r\n" );
 					bond_mode = BONDED; /* We have bonding information already, so don't go into bonding mode */
 				}
 				else
 				{
-					WICED_BT_TRACE("\tNo bonding info found in NVRAM\n" );
+					WICED_BT_TRACE("\tNo bonding info found in NVRAM\r\n" );
 				}
 
-				/* Print existing key info */
+				/* Print existing bonding info */
 				WICED_BT_TRACE("Remote BDA: ");
 				print_array(&bondinfo.link_keys.bd_addr, sizeof(bondinfo.link_keys.bd_addr));
 				WICED_BT_TRACE("CCCD: ");
@@ -194,7 +198,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 	    		/* Set CCCD value from the value that was previously saved in the NVRAM */
 	    		app_mysvc_counter_client_char_config[0] = bondinfo.cccd[0];
 	    		app_mysvc_counter_client_char_config[1] = bondinfo.cccd[1];
-	    		WICED_BT_TRACE("Restored saved CCCD info\n");
+	    		WICED_BT_TRACE("Restored saved CCCD info\r\n");
 	    	}
 			break;
 
@@ -205,7 +209,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 	    	}
 	    	else
 	    	{
-	    		WICED_BT_TRACE("Security Request Denied - not in bonding mode\n");
+	    		WICED_BT_TRACE("Security Request Denied - not in bonding mode\r\n");
 	    		status = WICED_BT_FAILED_ON_SECURITY;
 	    	}
 			break;
@@ -219,7 +223,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 			}
 			else
 			{
-				WICED_BT_TRACE("NVRAM Write Error: %d\n", nvram_status);
+				WICED_BT_TRACE("NVRAM Write Error: %d\r\n", nvram_status);
 				status = WICED_BT_ERROR;
 			}
 			break;
@@ -228,7 +232,8 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 			if( bond_mode == BONDED)
 			{
 				memcpy(&(p_event_data->paired_device_link_keys_request), &(bondinfo.link_keys), sizeof(wiced_bt_device_link_keys_t));
-				WICED_BT_TRACE("Link keys are available\n");
+				wiced_bt_dev_add_device_to_address_resolution_db ( &bondinfo.link_keys );
+				WICED_BT_TRACE("Link keys are available\r\n");
 			}
 			else /* keys not available, so we must return error to get the Stack to generate new keys */
 			{
@@ -237,19 +242,46 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 			break;
 
 		case BTM_LOCAL_IDENTITY_KEYS_UPDATE_EVT: 				// Save keys to NVRAM
-			/* Not using privacy, so these keys are not saved */
+			memcpy(&(identity_keys), &(p_event_data->local_identity_keys_update), sizeof(wiced_bt_local_identity_keys_t));
+			wiced_hal_write_nvram ( VSID_LOCAL_IDENTITY_KEYS, sizeof(wiced_bt_local_identity_keys_t), (uint8_t*)&identity_keys, &nvram_status );
+			if(nvram_status == WICED_SUCCESS)
+			{
+				WICED_BT_TRACE( "\tLocal Identity Key saved to NVRAM \n\r");
+			}
+			else
+			{
+				WICED_BT_TRACE("NVRAM Write Error: %d\r\n", nvram_status);
+				status = WICED_BT_ERROR;
+			}
 			break;
 
 		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 			// Read keys from NVRAM
-			/* This should return WICED_BT_SUCCESS if not using privacy. If RPA is enabled but keys are not
-			   stored in EEPROM, this must return WICED_BT_ERROR so that the stack will generate new privacy keys */
+			memset( &identity_keys, 0, sizeof(identity_keys) );
+			wiced_hal_read_nvram( VSID_LOCAL_IDENTITY_KEYS, sizeof(wiced_bt_local_identity_keys_t), (uint8_t*)&identity_keys, &nvram_status);
+			if( nvram_status == WICED_BT_SUCCESS )
+			{
+				WICED_BT_TRACE("\tIdentity keys found in NVRAM:\r\n" );
+				print_array(&identity_keys, sizeof(identity_keys));
+
+				/* Provide keys to the stack */
+				memcpy(&(p_event_data->local_identity_keys_request), &identity_keys, sizeof(wiced_bt_local_identity_keys_t));
+
+				/* Return success so that Stack will not generate new keys */
+				status = WICED_BT_SUCCESS;
+			}
+			else
+			{
+				WICED_BT_TRACE("\tNo identity keys found in NVRAM\r\n" );
+				/* Return error so that Stack will generate new keys */
+				status = WICED_BT_ERROR;
+			}
 			break;
 
 		case BTM_BLE_SCAN_STATE_CHANGED_EVT: 					// Scan State Change
 			break;
 
 		case BTM_BLE_ADVERT_STATE_CHANGED_EVT:					// Advertising State Change
-			WICED_BT_TRACE("Advertisement State Change: %s\n", get_bt_advert_mode_name(p_event_data->ble_advert_state_changed));
+			WICED_BT_TRACE("Advertisement State Change: %s\r\n", get_bt_advert_mode_name(p_event_data->ble_advert_state_changed));
             /* Turn LED ON, OFF, or blinking based on advertising and connection status */
 			if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_OFF ) /* Advertising is off */
 			{
@@ -322,7 +354,7 @@ wiced_bt_gatt_status_t app_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt_ga
 			else
 			{
 				// Device has disconnected
-				WICED_BT_TRACE("GATT disconnect from: BDA %B, Connection ID '%d', Reason '%s'\n", p_conn->bd_addr, p_conn->conn_id, get_bt_gatt_disconn_reason_name(p_conn->reason) );
+				WICED_BT_TRACE("GATT disconnect from: BDA %B, Connection ID '%d', Reason '%s'\r\n", p_conn->bd_addr, p_conn->conn_id, get_bt_gatt_disconn_reason_name(p_conn->reason) );
 
 				/* Handle the disconnection */
 				connection_id = 0;
@@ -459,7 +491,7 @@ static wiced_bt_gatt_status_t	app_gatt_set_value( wiced_bt_gatt_write_t *p_data 
                 		/* Save CCCD to NVRAM */
                 		wiced_result_t temp_result;
                 		wiced_hal_write_nvram( VSID_BONDINFO, sizeof(bondinfo), (uint8_t*)&(bondinfo), &temp_result );
-                		WICED_BT_TRACE( "\tWrite CCCD value to NVRAM\n\r" );
+                		WICED_BT_TRACE( "\tWrite CCCD value to NVRAM\r\n" );
 
                 		break;
                 }
@@ -554,7 +586,11 @@ void rx_cback( void *data )
 
 				/* Remove from the bonded device list */
 				wiced_bt_dev_delete_bonded_device(bondinfo.link_keys.bd_addr);
-				WICED_BT_TRACE( "Remove host %B from bonded device list \n\r", bondinfo.link_keys.bd_addr );
+				WICED_BT_TRACE( "Remove host %B from bonded device list \r\n", bondinfo.link_keys.bd_addr );
+
+				/* Remove device from address resolution database */
+				wiced_bt_dev_remove_device_from_address_resolution_db ( &bondinfo.link_keys );
+				WICED_BT_TRACE( "Removed device from address resolution database\r\n");
 
 				/* Clear bonding info structure */
 				memset( &bondinfo, 0, sizeof(bondinfo) );
@@ -573,12 +609,12 @@ void rx_cback( void *data )
 			}
 			else
 			{
-				WICED_BT_TRACE( "Bonding information can only be deleted when disconnected\n");
+				WICED_BT_TRACE( "Bonding information can only be deleted when disconnected\r\n");
 			}
 			break;
 
 		default:
-			WICED_BT_TRACE( "Invalid Input\n");
+			WICED_BT_TRACE( "Invalid Input\r\n");
 			break;
 	}
 }
@@ -605,10 +641,10 @@ static void print_array(void * to_print, uint16_t len)
 	{
 	   if( counter % 16 == 0 )
 	   {
-		   WICED_BT_TRACE( "\n" );
+		   WICED_BT_TRACE( "\r\n" );
 	   }
 	   WICED_BT_TRACE( "%02X ", *((uint8_t *)(to_print + counter)) );
 	}
-	WICED_BT_TRACE( "\n" );
+	WICED_BT_TRACE( "\r\n" );
 
 }

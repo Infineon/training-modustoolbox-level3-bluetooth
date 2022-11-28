@@ -81,7 +81,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 {
     wiced_result_t status = WICED_BT_SUCCESS;
 
-    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\n", event, get_bt_event_name(event));
+    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\r\n", event, get_bt_event_name(event));
 
     switch( event )
     {
@@ -133,19 +133,21 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 			break;
 
 		case BTM_PAIRED_DEVICE_LINK_KEYS_REQUEST_EVT: 		// Retrieval saved link keys
+			status = WICED_BT_ERROR;
 			break;
 
 		case BTM_LOCAL_IDENTITY_KEYS_UPDATE_EVT: 				// Save keys to NVRAM
 			break;
 
 		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 			// Read keys from NVRAM
+			status = WICED_BT_ERROR;
 			break;
 
 		case BTM_BLE_SCAN_STATE_CHANGED_EVT: 					// Scan State Change
 			break;
 
 		case BTM_BLE_ADVERT_STATE_CHANGED_EVT:					// Advertising State Change
-			WICED_BT_TRACE("Advertisement State Change: %s\n", get_bt_advert_mode_name(p_event_data->ble_advert_state_changed));
+			WICED_BT_TRACE("Advertisement State Change: %s\r\n", get_bt_advert_mode_name(p_event_data->ble_advert_state_changed));
             /* Turn LED ON, OFF, or blinking based on advertising and connection status */
 			if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_OFF ) /* Advertising is off */
 			{
@@ -208,7 +210,7 @@ wiced_bt_gatt_status_t app_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt_ga
 			else
 			{
 				// Device has disconnected
-				WICED_BT_TRACE("GATT disconnect from: BDA %B, Connection ID '%d', Reason '%s'\n", p_conn->bd_addr, p_conn->conn_id, get_bt_gatt_disconn_reason_name(p_conn->reason) );
+				WICED_BT_TRACE("GATT disconnect from: BDA %B, Connection ID '%d', Reason '%s'\r\n", p_conn->bd_addr, p_conn->conn_id, get_bt_gatt_disconn_reason_name(p_conn->reason) );
 
 				/* Handle the disconnection */
 				connection_id = 0;
@@ -230,7 +232,7 @@ wiced_bt_gatt_status_t app_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt_ga
 					break;
 
 				case GATTS_REQ_TYPE_CONF:
-					WICED_BT_TRACE("Received Confirmation\n");
+					WICED_BT_TRACE("Received Confirmation\r\n");
 					break;
             }
             break;

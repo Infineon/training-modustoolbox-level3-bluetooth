@@ -107,6 +107,9 @@ int main(void)
     cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,\
                         CY_RETARGET_IO_BAUDRATE);
 
+	/* Initialize pin to indicate advertising */
+    cyhal_gpio_init(CYBSP_USER_LED2,CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+    
     printf("**********Application Start*****************\n");
 
     /* Configure platform specific settings for the BT device */
@@ -154,7 +157,7 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 
 				/* Setup Eddystone advertisement packet and begin advertising */
                 app_set_advertisement_data();
-                wiced_bt_start_advertisements( BTM_BLE_ADVERT_UNDIRECTED_HIGH, 0, NULL );
+                wiced_bt_start_advertisements( BTM_BLE_ADVERT_NONCONN_HIGH, 0, NULL );
 
 	            result = WICED_BT_SUCCESS;
 			}
@@ -166,6 +169,14 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 
 		case BTM_BLE_ADVERT_STATE_CHANGED_EVT:					// Advertising State Change
             printf("Advertisement State Change: %s\n", get_bt_advert_mode_name(p_event_data->ble_advert_state_changed));
+            if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_OFF ) /* Advertising is stopped - LED OFF */
+			{
+            	cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_OFF);
+			}
+            else /* Advertising is on - LED ON */
+            {
+                cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_ON);
+            }
             result = WICED_BT_SUCCESS;
 			break;
 

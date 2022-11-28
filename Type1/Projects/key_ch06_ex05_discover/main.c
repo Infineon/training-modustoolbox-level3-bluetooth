@@ -167,6 +167,9 @@ int main(void)
     cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,\
                         CY_RETARGET_IO_BAUDRATE);
 
+	/* Initialize pin to indicate scanning */
+    cyhal_gpio_init(CYBSP_USER_LED2,CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+
     printf("**********Application Start*****************\n");
 
     /* Configure platform specific settings for the BT device */
@@ -258,10 +261,14 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 			result = WICED_BT_ERROR; // Return error since keys are not stored in EEPROM
 			break;
 
-		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 				// Read keys from EEPROM
+		case BTM_LOCAL_IDENTITY_KEYS_UPDATE_EVT: 				// Save keys to NVRAM
+			result = WICED_BT_SUCCESS;
+			break;
+
+		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 				// Read keys from NVRAM
             /* This should return WICED_BT_SUCCESS if not using privacy. If RPA is enabled but keys are not
                stored in EEPROM, this must return WICED_BT_ERROR so that the stack will generate new privacy keys */
-			result = WICED_BT_SUCCESS;
+			result = WICED_BT_ERROR;
 			break;
 
 		case BTM_BLE_SCAN_STATE_CHANGED_EVT: 					// Scan State Change
@@ -269,14 +276,17 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 			{
 				case BTM_BLE_SCAN_TYPE_NONE:
 					printf( "Scanning stopped.\r\n" );
+					cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_OFF);
 					break;
 
 				case BTM_BLE_SCAN_TYPE_HIGH_DUTY:
 					printf( "High duty scanning.\r\n" );
+					cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_ON);
 					break;
 
 				case BTM_BLE_SCAN_TYPE_LOW_DUTY:
 					printf( "Low duty scanning.\r\n" );
+					cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_ON);
 					break;
 			}
 			result = WICED_BT_SUCCESS;
@@ -484,6 +494,8 @@ static wiced_bt_gatt_status_t app_bt_connect_event_handler(wiced_bt_gatt_connect
 			
             connection_id = p_conn_status->conn_id;
 
+			cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_ON);
+
     		/* Initiate pairing */
     		wiced_bt_dev_sec_bond(p_conn_status->bd_addr, p_conn_status->addr_type, BT_TRANSPORT_LE, 0, NULL);
         }
@@ -495,6 +507,8 @@ static wiced_bt_gatt_status_t app_bt_connect_event_handler(wiced_bt_gatt_connect
             printf("Connection ID '%d', Reason '%s'\n", p_conn_status->conn_id, get_bt_gatt_disconn_reason_name(p_conn_status->reason) );
 
 			connection_id = 0;
+
+			cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_OFF);
         }
 
         status = WICED_BT_GATT_SUCCESS;

@@ -264,7 +264,7 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 				// Read keys from NVRAM
             /* This should return WICED_BT_SUCCESS if not using privacy. If RPA is enabled but keys are not
                stored in EEPROM, this must return WICED_BT_ERROR so that the stack will generate new privacy keys */
-			result = WICED_BT_SUCCESS;
+			result = WICED_BT_ERROR;
 			break;
 
 		case BTM_BLE_SCAN_STATE_CHANGED_EVT: 					// Scan State Change

@@ -257,7 +257,7 @@ static wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t even
 		case  BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT: 				// Read keys from NVRAM
             /* This should return WICED_BT_SUCCESS if not using privacy. If RPA is enabled but keys are not
                stored in EEPROM, this must return WICED_BT_ERROR so that the stack will generate new privacy keys */
-			result = WICED_BT_SUCCESS;
+			result = WICED_BT_ERROR;
 			break;
 
 		case BTM_BLE_SCAN_STATE_CHANGED_EVT: 					// Scan State Change
@@ -363,24 +363,25 @@ static wiced_bt_gatt_status_t app_bt_connect_event_handler(wiced_bt_gatt_connect
     {
         if (p_conn_status->connected)
         {
-           	printf("GATT_CONNECTION_STATUS_EVT: Connect BDA ");
+           	/* Handle the connection */
+            printf("GATT_CONNECTION_STATUS_EVT: Connect BDA ");
            	print_bd_address(p_conn_status->bd_addr);
 			printf("Connection ID %d\n", p_conn_status->conn_id );
+			
+            connection_id = p_conn_status->conn_id;
 
-			/* Handle the connection */
-			connection_id = p_conn_status->conn_id;
+			cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_ON);
         }
         else
         {
+            /* Handle the disconnection */
             printf("Disconnected : BDA " );
             print_bd_address(p_conn_status->bd_addr);
             printf("Connection ID '%d', Reason '%s'\n", p_conn_status->conn_id, get_bt_gatt_disconn_reason_name(p_conn_status->reason) );
 
-			/* Handle the disconnection */
-            connection_id = 0;
+			connection_id = 0;
 
-			/* Restart the advertisements */
-			wiced_bt_start_advertisements( BTM_BLE_ADVERT_UNDIRECTED_HIGH, 0, NULL );
+			cyhal_gpio_write(CYBSP_USER_LED2,CYBSP_LED_STATE_OFF);
         }
 
         status = WICED_BT_GATT_SUCCESS;

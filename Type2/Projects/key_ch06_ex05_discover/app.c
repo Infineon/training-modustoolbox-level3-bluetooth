@@ -96,7 +96,7 @@ wiced_result_t app_bt_management_callback( wiced_bt_management_evt_t event, wice
 {
 	wiced_result_t status = WICED_BT_SUCCESS;
 
-    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\n", event, get_bt_event_name(event));
+    WICED_BT_TRACE("Bluetooth Management Event: 0x%x %s\r\n", event, get_bt_event_name(event));
 
 	switch( event )
 	{
@@ -179,7 +179,7 @@ wiced_bt_gatt_status_t app_bt_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt
 			else
 			{
 				// Device has disconnected
-				WICED_BT_TRACE("GATT disconnect from: BDA %B, Connection ID '%d', Reason '%s'\n", p_conn->bd_addr, p_conn->conn_id, get_bt_gatt_disconn_reason_name(p_conn->reason) );
+				WICED_BT_TRACE("GATT disconnect from: BDA %B, Connection ID '%d', Reason '%s'\r\n", p_conn->bd_addr, p_conn->conn_id, get_bt_gatt_disconn_reason_name(p_conn->reason) );
 
 				/* Handle the disconnection */
 				connection_id = 0;
@@ -193,14 +193,14 @@ wiced_bt_gatt_status_t app_bt_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt
 	    		p_event_data->operation_complete.status == WICED_BT_GATT_ENCRYPED_NO_MITM ||
 				p_event_data->operation_complete.status == WICED_BT_GATT_NOT_ENCRYPTED)
 	    	{
-	    		WICED_BT_TRACE("GATT operation completed successfully\n");
+	    		WICED_BT_TRACE("GATT operation completed successfully\r\n");
 				status = WICED_BT_GATT_SUCCESS;
 				if(p_event_data->operation_complete.op == GATTC_OPTYPE_READ) /* The operation was a read */
 	    		{
 	    			if(p_event_data->operation_complete.response_data.att_value.handle == ledChar.valHandle ) /* The LED value was read */
 	    			{
 	    				memcpy(&ledStatus, p_event_data->operation_complete.response_data.att_value.p_data, sizeof(uint8_t));
-	    				WICED_BT_TRACE("LED value is: %d\n", ledStatus);
+	    				WICED_BT_TRACE("LED value is: %d\r\n", ledStatus);
 	    			}
 	    		}
 
@@ -212,7 +212,7 @@ wiced_bt_gatt_status_t app_bt_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt
 	    	}
 	    	else
 	    	{
-	    		WICED_BT_TRACE("GATT operation failed with status: %d\n", p_event_data->operation_complete.status);
+	    		WICED_BT_TRACE("GATT operation failed with status: %d\r\n", p_event_data->operation_complete.status);
 				status = WICED_BT_GATT_ERROR;
 	    	}
 	    	break;
@@ -237,7 +237,6 @@ wiced_bt_gatt_status_t app_bt_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt
 				WICED_BT_TRACE( "Char Handle=0x%X Value Handle=0x%X Len=%d ",
 							charHandles[charHandleCount].startHandle,
 							charHandles[charHandleCount].valHandle,
-							GATT_DISCOVERY_RESULT_CHARACTERISTIC_VALUE_HANDLE( p_event_data ),
 							GATT_DISCOVERY_RESULT_CHARACTERISTIC_UUID_LEN( p_event_data ) );
 
 				if( charHandleCount != 0 )
@@ -263,6 +262,7 @@ wiced_bt_gatt_status_t app_bt_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt
 					counterChar.valHandle = GATT_DISCOVERY_RESULT_CHARACTERISTIC_VALUE_HANDLE( p_event_data );
 				}
 
+				WICED_BT_TRACE( "UUID=" );
 				for (int i=0; i<GATT_DISCOVERY_RESULT_CHARACTERISTIC_UUID_LEN( p_event_data ); i++ ) // Dump the bytes to the screen
 				{
 					WICED_BT_TRACE( "%02X ", GATT_DISCOVERY_RESULT_CHARACTERISTIC_UUID128( p_event_data )[i] );
@@ -305,7 +305,7 @@ wiced_bt_gatt_status_t app_bt_gatt_callback( wiced_bt_gatt_evt_t event, wiced_bt
 			break;
 
 		default:
-			WICED_BT_TRACE( "Unhandled GATT Event: 0x%x (%d)\n", event, event );
+			WICED_BT_TRACE( "Unhandled GATT Event: 0x%x (%d)\r\n", event, event );
 			break;
 	}
 
@@ -333,7 +333,7 @@ void scanCallback(wiced_bt_ble_scan_results_t *p_scan_result, uint8_t *p_adv_dat
 		memcpy( dev_name, p_name, len);
 		dev_name[len] = 0x00;	/* Null terminate the string */
 
-		WICED_BT_TRACE("Found Device \"%s\" with BD Address: [%B]\n", dev_name, p_scan_result->remote_bd_addr);
+		WICED_BT_TRACE("Found Device \"%s\" with BD Address: [%B]\r\n", dev_name, p_scan_result->remote_bd_addr);
 
 		/* Connect to peripheral and stop scanning */
 		wiced_bt_gatt_le_connect(p_scan_result->remote_bd_addr, p_scan_result->ble_addr_type, BLE_CONN_MODE_HIGH_DUTY, WICED_TRUE);
