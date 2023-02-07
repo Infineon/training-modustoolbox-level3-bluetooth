@@ -66,6 +66,10 @@
 /*******************************************************************
  * Macros to assist development of the exercises
  ******************************************************************/
+#ifndef CYBSP_USER_LED2
+#define CYBSP_USER_LED2 P10_0
+#endif
+
 #define TASK_STACK_SIZE (4096u)
 #define	TASK_PRIORITY 	(5u)
 #define GPIO_INTERRUPT_PRIORITY (7u)
@@ -162,7 +166,7 @@ int main(void)
                         CY_RETARGET_IO_BAUDRATE);
 
     /* Initialize LED Pin */
-    cyhal_gpio_init(CYBSP_LED_RGB_BLUE, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+    cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
 
     /* Initialize PWM for connection status LED */
     cyhal_pwm_init(&status_pwm_obj, CYBSP_USER_LED2, NULL);
@@ -586,7 +590,7 @@ static wiced_bt_gatt_status_t app_bt_write_handler(wiced_bt_gatt_event_data_t *p
                  {
                  	 // Add action when specified handle is written
                  	 case HDLC_PSOC_LED_VALUE:
-                 		cyhal_gpio_write(CYBSP_LED_RGB_BLUE, app_psoc_led[0] == 0 );
+                 		cyhal_gpio_write(CYBSP_USER_LED, app_psoc_led[0] == 0 );
                   		printf( "Turn the LED %s\r\n", app_psoc_led[0] ? "ON" : "OFF" );
                   		break;
 				 }

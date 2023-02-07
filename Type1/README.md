@@ -1,6 +1,6 @@
 # ModusToolbox™ Software Training Level3 Bluetooth® Type1
 
-This is a class to teach how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a PSoC™ 6 MCU as a host to a 43012 device but they apply to any Bluetooth® application in which the MCU supports the mtb-hal-cat* hardware abstraction library.
+This class will teach you how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a PSoC™ 6 MCU as a host to a 43012 device, but they apply to any Bluetooth® application in which the MCU supports the mtb-hal-cat* hardware abstraction library.
 
 A partial list of development kits that are covered by the material in this class is:
 
@@ -35,7 +35,7 @@ After completing this class, you should be able to create and debug full Bluetoo
 The manual consists of the following chapters:
 
 - Chapter 1: Introduction - Overall introduction to the class
-- Chapter 2: Bluetooth® Protocol - General description of Bluetooth® terms and protocol
+- Chapter 2: Bluetooth® Protocol - General description of Bluetooth® terms and protocols
 - Chapter 3: Bluetooth® LE Basic Peripheral - How to create a basic Bluetooth® peripheral using the ModusToolbox™ ecosystem
 - Chapter 4: Notify and Indicate - How to implement notifications and indications in a peripheral
 - Chapter 5: Pairing, Bonding & Privacy - How to implement various types of security in Bluetooth®
@@ -51,3 +51,10 @@ The following hardware is used for the exercises in this class:
 
 - CY8CKIT-062S2-43012 (PSoC™ 62S2 Wi-Fi/Bluetooth Pioneer Kit)
 - Ammeter (for low power chapter exercises)
+
+As a less expensive alternative, the following kit can be used:
+
+- CY8CPROTO-062-4343W (PSoC™ 62 Wi-Fi BT Prototyping Kit)
+- Ammeter (for low power chapter exercises)
+
+*The CY8CPROTO-062-4343W kit has only one user LED. Exercises that use a second LED as a connection status indicator will still function, but the status indicator will not be available unless an external LED is connected between VTARG and P10_0.*

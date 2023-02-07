@@ -64,6 +64,10 @@
 /*******************************************************************
  * Macros to assist development of the exercises
  ******************************************************************/
+#ifndef CYBSP_USER_LED2
+#define CYBSP_USER_LED2 P10_0
+#endif
+
 #define BOND_MAX (4)
 
 #define NONE (255)

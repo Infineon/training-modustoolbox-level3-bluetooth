@@ -57,6 +57,10 @@
 /*******************************************************************
  * Macros to assist development of the exercises
  ******************************************************************/
+#ifndef CYBSP_USER_LED2
+#define CYBSP_USER_LED2 P10_0
+#endif
+
 #define TASK_STACK_SIZE (4096u)
 #define	TASK_PRIORITY 	(5u)
 #define GPIO_INTERRUPT_PRIORITY (7u)
