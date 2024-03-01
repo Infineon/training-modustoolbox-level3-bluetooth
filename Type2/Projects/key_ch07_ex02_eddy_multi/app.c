@@ -129,7 +129,7 @@ void app_multi_advertise( void )
 {
 	uint8_t packet_len;
 
-    uint8_t url[] = {'i', 'n', 'f', 'i', 'n', 'e', 'o', 'n', EDDY_DOTCOM, 0x00}; /* Name for cypress.com with null termination for the string added */
+    uint8_t url[EDDYSTONE_URL_VALUE_MAX_LEN] = {'i', 'n', 'f', 'i', 'n', 'e', 'o', 'n', EDDY_DOTCOM, 0x00}; /* Name for cypress.com with null termination for the string added */
 	uint8_t uid_namespace[] = { 'k', 'e', 'y', 0, 0, 0, 0, 0, 0, 0 };
 	uint8_t uid_instance[] = { 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC };
 

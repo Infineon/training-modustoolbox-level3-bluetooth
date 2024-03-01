@@ -69,9 +69,9 @@ TOOLCHAIN=GCC_ARM
 # for your IDE.
 CONFIG=Debug
 
+
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
-
 
 ################################################################################
 # Advanced Configuration
@@ -140,6 +140,22 @@ PREBUILD=
 
 # Custom post-build commands to run.
 POSTBUILD=
+
+
+# Specify the flash region to be used as NVRAM for bond data storage
+USE_INTERNAL_FLASH = 0
+
+ifeq ($(TARGET), $(filter $(TARGET), APP_CY8CKIT-062-BLE APP_CY8CPROTO-063-BLE APP_CYBLE-416045-EVAL))
+USE_INTERNAL_FLASH = 1
+endif
+
+ifeq ($(TARGET), $(filter $(TARGET), APP_CY8CKIT-062-WIFI-BT APP_CYW9P62S1-43438EVB-01 APP_CYW9P62S1-43012EVB-01 APP_CY8CKIT-062S2-43012 APP_CY8CPROTO-062S3-4343W APP_CY8CEVAL-062S2-LAI-4373M2 APP_CY8CPROTO-062-4343W APP_CY8CEVAL-062S2-LAI-43439M2 APP_CY8CPROTO-062S2-43439 APP_CY8CEVAL-062S2-MUR-4373M2 APP_CY8CEVAL-062S2-MUR-4373EM2))
+USE_INTERNAL_FLASH = 1
+endif
+
+ifeq ($(USE_INTERNAL_FLASH),1)
+DEFINES+=USE_INTERNAL_FLASH
+endif
 
 
 ################################################################################

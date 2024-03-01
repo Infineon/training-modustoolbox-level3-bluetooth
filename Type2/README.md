@@ -1,6 +1,6 @@
 # ModusToolbox™ Software Training Level3 Bluetooth® Type2
 
-This is a class to teach how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a CYW20835 device but they apply to any Bluetooth® application in which the MCU supports the AIROC™ Bluetooth® SDK.
+This is a class to teach how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a CYW20835 device but they apply to any AIROC™ Bluetooth® device with a single MCU.
 
 A partial list of development kits that are covered by the material in this class is:
 

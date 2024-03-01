@@ -1,21 +1,23 @@
 # ModusToolbox™ Software Training Level3 Bluetooth® Type1
 
-This class will teach you how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a PSoC™ 6 MCU as a host to a 43012 device, but they apply to any Bluetooth® application in which the MCU supports the mtb-hal-cat* hardware abstraction library.
+This class will teach you how to use Bluetooth® Low Energy in ModusToolbox™ applications. The descriptions and exercises use a CYW20829 or a PSoC™ 6 MCU as a host to a CYW43012 device, but they apply to any AIROC™ Bluetooth® device with a host MCU or single-chip AIROC™ Bluetooth® device with dual MCUs.
 
-A partial list of development kits that are covered by the material in this class is:
+A partial list of development kits that are covered by the material in this class are as follows:
 
+- CYW920829M2EVK-02
 - CY8CKIT-062S2-43012
 - CY8CKIT-062-WIFI-BT
 - CY8CKIT-064B0S2-4343W
 - CY8CKIT-064S0S2-4343W
 - CY8CPROTO-062-4343W
 - CY8CPROTO-062S3-4343W
+- CY8CPROTO-062S2-43439
 - CY8CEVAL-062S2-LAI-4373M2
 - CY8CEVAL-062S2-MUR-43439M2
 - CYW9P62S1-43012EVB-01
 - CYW9P62S1-43438EVB-01
 
-*Note: some exercises may not work as-is on all kits listed above.*
+*Note: some exercises may not work as-is on all of the kits listed above.*
 
 After completing this class, you should be able to create and debug full Bluetooth® applications using the ModusToolbox™ ecosystem including peripherals, centrals, and beacons.
 
@@ -47,14 +49,21 @@ The manual consists of the following chapters:
 
 ## Hardware
 
-The following hardware is used for the exercises in this class:
+The following hardware can used for the exercises in this class:
+
+Option 1:
+
+- CYW20829 (Bluetooth LE 5.4 Controller and Cortex M33 MCU)
+- Ammeter (for low power chapter exercises)
+
+Option 2: 
 
 - CY8CKIT-062S2-43012 (PSoC™ 62S2 Wi-Fi/Bluetooth Pioneer Kit)
 - Ammeter (for low power chapter exercises)
 
-As a less expensive alternative, the following kit can be used:
+Option 3: As a less expensive alternative, the following kit can be used:
 
-- CY8CPROTO-062-4343W (PSoC™ 62 Wi-Fi BT Prototyping Kit)
+- CY8CPROTO-062-4343W or CY8CPROTO-062S2-43439 (PSoC™ 62 Wi-Fi BT Prototyping Kits)
 - Ammeter (for low power chapter exercises)
 
-*The CY8CPROTO-062-4343W kit has only one user LED. Exercises that use a second LED as a connection status indicator will still function, but the status indicator will not be available unless an external LED is connected between VTARG and P10_0.*
+*The prototyping kits only have one user LED. Exercises that use a second LED as a connection status indicator will still function, but the status indicator will not be available unless an external LED is connected between VTARG and P10_0.*
